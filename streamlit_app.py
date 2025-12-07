@@ -632,4 +632,5 @@ elif st.session_state.page == 'home': page_home()
 elif st.session_state.page == 'categories': page_categories()
 elif st.session_state.page == 'favorites': page_favorites()
 elif st.session_state.page == 'new_recipe': page_new_recipe()
+
 elif st.session_state.page == 'details': page_details()
