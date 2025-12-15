@@ -82,7 +82,7 @@ st.markdown(f"""
     footer {{visibility: hidden;}}
     .stDeployButton {{display:none;}}
 
-    /* TOP NAV */
+    /* --- TOP NAV (Strict Centering) --- */
     .top-nav {{
         width: 100%;
         background-color: white;
@@ -91,8 +91,12 @@ st.markdown(f"""
         position: fixed;
         top: 0; left: 0; right: 0;
         z-index: 999;
-        text-align: center;
         border-radius: 0px 0px 25px 25px;
+        
+        /* FLEXBOX CENTERING */
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }}
     .top-nav h1 {{
         margin: 0;
@@ -102,10 +106,12 @@ st.markdown(f"""
         color: #FF9B00;
         text-transform: uppercase;
         letter-spacing: 2px;
+        text-align: center; /* Ensure text inside H1 is centered */
+        width: 100%;
     }}
     .nav-spacer {{ height: 100px; }}
 
-    /* --- INPUTS & SELECTBOX FIXES --- */
+    /* --- BUTTONS & INPUTS --- */
     
     .stTextInput input, .stTextArea textarea {{
         background-color: white !important;
@@ -119,12 +125,12 @@ st.markdown(f"""
         opacity: 1;
     }}
 
+    /* SELECTBOX STYLING */
     div[data-baseweb="select"] {{
         background-color: white !important;
         border: 2px solid #FF9B00 !important;
         border-radius: 12px !important;
     }}
-    
     div[data-baseweb="select"] > div {{
         background-color: transparent !important;
         color: black !important;
@@ -132,11 +138,9 @@ st.markdown(f"""
     div[data-baseweb="select"] span {{
         color: black !important;
     }}
-    
     div[data-baseweb="select"] svg {{
         fill: #FF9B00 !important;
     }}
-
     ul[data-baseweb="menu"] {{
         background-color: white !important;
     }}
@@ -147,12 +151,10 @@ st.markdown(f"""
     ul[data-baseweb="menu"] li:hover {{
         background-color: #FFF4E0 !important;
     }}
-    
-    /* -------------------------------- */
 
-    /* RECIPE CARD CONTAINER - FORCED WHITE BACKGROUND */
+    /* RECIPE CARD */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: #FFFFFF !important; /* Explicit White */
+        background-color: #FFFFFF !important;
         border-radius: 20px !important;
         border: none !important;
         box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important;
@@ -161,7 +163,14 @@ st.markdown(f"""
         opacity: 1 !important;
     }}
     
-    /* BUTTONS: WHITE FILL, ORANGE TEXT */
+    /* --- GENERAL BUTTON CENTERING --- */
+    /* This forces the container of the button to align content to center */
+    .stButton {{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }}
+
     .stButton button {{
         background-color: white !important;
         color: #FF9B00 !important;
@@ -171,6 +180,9 @@ st.markdown(f"""
         font-weight: 800 !important;
         transition: 0.3s ease;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+        /* Force button to be block and have auto margins */
+        display: block; 
+        margin: 0 auto;
     }}
     .stButton button:hover {{
         background-color: #e68900 !important;
@@ -191,8 +203,6 @@ st.markdown(f"""
     }}
 
     /* FOOTER ICONS */
-    
-    /* Left: Categories */
     div[data-testid="column"]:nth-of-type(1) .footer-btn button {{
         background-image: url("data:image/png;base64,{icon_cat}");
         background-size: 30px;
@@ -205,7 +215,6 @@ st.markdown(f"""
     }}
     div[data-testid="column"]:nth-of-type(1) .footer-btn button:hover {{ transform: scale(1.1); background-color: transparent !important; }}
 
-    /* Right: Favorites */
     div[data-testid="column"]:nth-of-type(3) .footer-btn button {{
         background-image: url("data:image/png;base64,{icon_heart_r}");
         background-size: 30px;
@@ -218,7 +227,6 @@ st.markdown(f"""
     }}
     div[data-testid="column"]:nth-of-type(3) .footer-btn button:hover {{ transform: scale(1.1); background-color: transparent !important; }}
 
-    /* Middle: Home */
     .footer-home button {{
         background-image: url("data:image/png;base64,{icon_house}");
         background-size: 35px;
@@ -235,14 +243,13 @@ st.markdown(f"""
     }}
     .footer-home button:hover {{ transform: translateY(-25px) scale(1.05); }}
 
-    /* Middle: New Recipe */
     .footer-add button {{
         color: white !important;
         font-size: 16px !important;
-        font-weight: 900 !important; /* Bold */
+        font-weight: 900 !important;
         background-color: #FF9B00 !important;
-        border-radius: 30px !important; /* Pill shape */
-        width: 140px !important; /* Wider for text */
+        border-radius: 30px !important;
+        width: 140px !important;
         height: 60px !important;
         border: 4px solid white !important;
         box-shadow: 0 -5px 10px rgba(0,0,0,0.1) !important;
@@ -267,7 +274,7 @@ st.markdown(f"""
     .category-item {{
         background: white; 
         border-radius: 20px; 
-        padding: 20px 25px; /* Increased Padding */
+        padding: 20px 25px; 
         margin-bottom: 15px; 
         display: flex; 
         align-items: center;
@@ -293,6 +300,7 @@ st.markdown(f"""
 # -----------------------------------------------------------------------------
 
 def render_top_nav(title):
+    # The CSS class .top-nav now has flex + justify-content: center
     st.markdown(f"""
         <div class="top-nav">
             <h1>{title}</h1>
@@ -307,14 +315,12 @@ def render_bottom_nav():
     
     c1, c2, c3 = st.columns([1, 1, 1])
     
-    # 1. Categories Button
     with c1:
         st.markdown('<div class="footer-btn">', unsafe_allow_html=True)
         if st.button("Categories", key="nav_cat", use_container_width=True):
             navigate_to("categories")
         st.markdown('</div>', unsafe_allow_html=True)
             
-    # 2. Middle Button
     with c2:
         if st.session_state.page == 'home':
             st.markdown('<div class="footer-add">', unsafe_allow_html=True)
@@ -332,7 +338,6 @@ def render_bottom_nav():
                 navigate_to("home")
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # 3. Favorites Button
     with c3:
         st.markdown('<div class="footer-btn">', unsafe_allow_html=True)
         if st.button("Favorites", key="nav_fav", use_container_width=True):
@@ -349,22 +354,26 @@ def page_welcome():
     img_html = f'<img src="data:image/png;base64,{egg_img}" class="hop" style="height:200px;">' if egg_img else '<div class="hop" style="font-size:150px;">🥚</div>'
 
     st.markdown(f"""
-        <div style="height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+        <div style="height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
             {img_html}
-            <h1 style="color: white; font-family: 'Pixelify Sans'; font-size: 50px; margin-top: 30px; text-shadow: 2px 2px 0px #000; text-align: center; width: 100%;">DISH DIARY</h1>
+            <h1 style="color: white; font-family: 'Pixelify Sans'; font-size: 50px; margin-top: 30px; margin-left: 10px; text-shadow: 2px 2px 0px #000; text-align: center; width: 100%;">DISH DIARY</h1>
             <p style="color: white; letter-spacing: 2px; text-shadow: 1px 1px 0px #000; font-size: 18px;">CREATE, COOK, ENJOY</p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Use 3 equal columns to center the middle one perfectly
-    _, col, _ = st.columns([1, 1, 1]) 
+    # CENTERING THE ENTER BUTTON
+    # Using 3 columns aligns it in the center column on Desktop.
+    # On Mobile, the columns stack, but the CSS `.stButton { display:flex; justify-content:center }`
+    # combined with `margin: 0 auto` ensures the button stays centered even when stacked.
+    _, col, _ = st.columns([1, 2, 1]) 
     with col:
-        if st.button("Tap here to enter!"):
+        if st.button("Tap here to enter!", use_container_width=True):
             navigate_to("home")
 
 # --- HOME ---
 def page_home():
-    render_top_nav("MY RECIPE LIST")
+    # Title: RECIPE LIST (Centered)
+    render_top_nav("RECIPE LIST")
     
     if not st.session_state.recipes:
         st.markdown("""
@@ -375,7 +384,6 @@ def page_home():
         """, unsafe_allow_html=True)
     else:
         for recipe in st.session_state.recipes:
-            # Single White Box
             with st.container(border=True):
                 st.markdown(f"""
                     <div style="font-weight:800; color: white; font-size:22px; line-height:1.2; margin-bottom:5px;">
@@ -386,7 +394,6 @@ def page_home():
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # ADDED SPACER HERE FOR MARGIN
                 st.write("") 
                 
                 c_view, c_fav = st.columns([1, 1])
@@ -403,6 +410,7 @@ def page_home():
 
 # --- NEW RECIPE ---
 def page_new_recipe():
+    # Title: NEW RECIPE (Centered)
     render_top_nav("NEW RECIPE")
     st.write("") 
 
@@ -419,12 +427,10 @@ def page_new_recipe():
     st.write("")
 
     st.markdown("**Ingredients**")
-    # CHANGED: 3.5 to 1.5 gives more space to button, less to input
     c1, c2 = st.columns([3.5, 1.5]) 
     with c1:
         new_ing = st.text_input("Ing", label_visibility="collapsed", placeholder="Add Item", key="ing_in")
     with c2:
-        # CHANGED: Added use_container_width=True to make button fill the column
         if st.button("➕", key="add_ing", use_container_width=True):
             if new_ing:
                 st.session_state.new_rec_ingredients.append(new_ing)
@@ -448,7 +454,6 @@ def page_new_recipe():
     is_fav = st.checkbox("Add to Favorites ❤️")
     st.write("")
 
-    # Use 3 equal columns to center the middle button
     c_left, c_mid, c_right = st.columns([1, 1, 1])
     with c_mid:
         if st.button("DONE", type="primary", use_container_width=True):
@@ -466,19 +471,8 @@ def page_new_recipe():
                 st.success("Saved!")
                 navigate_to("home")
             else:
-                # Custom WHITE Box for Error
                 st.markdown(f"""
-                <div style="
-                    background-color: white;
-                    color: #FF9B00;
-                    font-weight: 700;
-                    padding: 10px;
-                    border-radius: 10px;
-                    text-align: center;
-                    margin-top: 10px;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                    border: 2px solid #FF9B00;
-                ">
+                <div style="background-color:white; color:#FF9B00; font-weight:700; padding:10px; border-radius:10px; text-align:center; margin-top:10px; box-shadow:0 4px 6px rgba(0,0,0,0.1); border:2px solid #FF9B00;">
                     Missing Name or Category
                 </div>
                 """, unsafe_allow_html=True)
@@ -487,6 +481,7 @@ def page_new_recipe():
 
 # --- CATEGORIES ---
 def page_categories():
+    # Title: CATEGORIES (Centered)
     render_top_nav("CATEGORIES")
     st.write("")
 
@@ -502,14 +497,12 @@ def page_categories():
     for cat_name, img_file in cats:
         count = sum(1 for r in st.session_state.recipes if r['category'] == cat_name)
         
-        # Load the specific pixel icon
         cat_img_b64 = get_img_as_base64(f"assets/categories/{img_file}")
         if cat_img_b64:
              img_tag = f'<img src="data:image/png;base64,{cat_img_b64}" style="width:40px; height:40px;">'
         else:
              img_tag = "<span>❓</span>"
 
-        # Using HTML directly to control layout (Flexbox)
         st.markdown(f"""
         <div class="category-item">
             <div style="display:flex; align-items:center; gap:20px; flex-grow:1;">
@@ -524,6 +517,7 @@ def page_categories():
 
 # --- FAVORITES ---
 def page_favorites():
+    # Title: FAVORITES (Centered)
     render_top_nav("FAVORITES")
     
     faves = [r for r in st.session_state.recipes if r['fav']]
@@ -546,7 +540,6 @@ def page_favorites():
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # ADDED SPACER HERE FOR MARGIN
                 st.write("") 
                 
                 c_view, c_unfav = st.columns([1, 1])
@@ -574,7 +567,6 @@ def page_details():
     with c_title:
         st.markdown(f"<h2 style='text-align:center; color:white; margin:0; text-shadow:1px 1px 2px black;'>{rec['name']}</h2>", unsafe_allow_html=True)
     with c_fav:
-        # Toggle icon
         icon = "❤️" if rec['fav'] else "🤍"
         if st.button(icon, key="det_fav"):
             rec['fav'] = not rec['fav']
@@ -582,7 +574,6 @@ def page_details():
 
     st.write("")
     
-    # Metadata
     st.markdown(f"""
     <div style="display:flex; justify-content:space-between; border-bottom:2px solid white; padding-bottom:10px; margin-bottom:20px;">
         <span style="background:white; color:#FF9B00; padding:5px 15px; border-radius:15px; font-weight:800;">{rec['category']}</span>
@@ -632,5 +623,4 @@ elif st.session_state.page == 'home': page_home()
 elif st.session_state.page == 'categories': page_categories()
 elif st.session_state.page == 'favorites': page_favorites()
 elif st.session_state.page == 'new_recipe': page_new_recipe()
-
 elif st.session_state.page == 'details': page_details()
