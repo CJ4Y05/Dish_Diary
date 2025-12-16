@@ -17,6 +17,9 @@ if 'recipes' not in st.session_state:
     st.session_state.recipes = [] 
 if 'selected_recipe_id' not in st.session_state:
     st.session_state.selected_recipe_id = None
+# Track selected category for the list view
+if 'selected_category' not in st.session_state:
+    st.session_state.selected_category = None
 
 # Temp state for New Recipe
 if 'new_rec_ingredients' not in st.session_state:
@@ -59,6 +62,7 @@ def navigate_to(page_name, recipe_id=None):
 # -----------------------------------------------------------------------------
 # 2. LOAD ASSETS (Base64)
 # -----------------------------------------------------------------------------
+# Note: Ensure these paths exist in your local folder or the images won't load.
 egg_img = get_img_as_base64("assets/Egg.png")
 icon_cat = get_img_as_base64("assets/Categories Icon.png")
 icon_heart_r = get_img_as_base64("assets/Heart R.png")
@@ -163,14 +167,15 @@ st.markdown(f"""
         background-color: #FFF4E0 !important;
     }}
 
-    /* RECIPE CARD */
+    /* RECIPE CARD & CONTAINER STYLING */
+    /* This targets st.container(border=True) */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: #FFFFFF !important;
         border-radius: 20px !important;
         border: none !important;
         box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important;
-        padding: 20px !important;
-        margin-bottom: 20px !important;
+        padding: 15px !important;
+        margin-bottom: 15px !important;
         opacity: 1 !important;
     }}
     
@@ -192,7 +197,7 @@ st.markdown(f"""
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 0px 15px !important; /* Reset padding for flex centering */
+        padding: 0px 15px !important; 
         
         font-weight: 800 !important;
         transition: 0.3s ease;
@@ -283,21 +288,6 @@ st.markdown(f"""
         color: white !important;
         background-color: #e68900 !important;
     }}
-
-    /* CATEGORY LIST ITEM */
-    .category-item {{
-        background: white; 
-        border-radius: 20px; 
-        padding: 20px 25px; 
-        margin-bottom: 15px; 
-        display: flex; 
-        align-items: center;
-        justify-content: space-between; 
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        cursor: pointer;
-        width: 100%;
-    }}
-    .category-item:hover {{ transform: scale(1.02); }}
 
     /* ANIMATIONS */
     .hop {{ animation: hop 1.5s infinite; }}
@@ -556,7 +546,7 @@ def page_new_recipe():
 
     render_bottom_nav()
 
-# --- CATEGORIES ---
+# --- CATEGORIES SELECTION ---
 def page_categories():
     render_top_nav("CATEGORIES")
     st.write("")
@@ -574,17 +564,67 @@ def page_categories():
         count = sum(1 for r in st.session_state.recipes if r['category'] == cat_name)
         cat_img_b64 = get_img_as_base64(f"assets/categories/{img_file}")
         
-        img_tag = f'<img src="data:image/png;base64,{cat_img_b64}" style="width:40px; height:40px;">' if cat_img_b64 else "<span>❓</span>"
+        img_tag = f'<img src="data:image/png;base64,{cat_img_b64}" style="width:40px; height:40px; margin-top:5px;">' if cat_img_b64 else "<span>❓</span>"
 
+        # UPDATED: Use st.container(border=True) to create the white card background
+        with st.container(border=True):
+            # Try to vertical align if Streamlit version supports it, else standard
+            try:
+                c_icon, c_btn = st.columns([1, 4], vertical_alignment="center")
+            except TypeError:
+                c_icon, c_btn = st.columns([1, 4])
+            
+            with c_icon:
+                st.markdown(f"<div style='text-align:center;'>{img_tag}</div>", unsafe_allow_html=True)
+            
+            with c_btn:
+                # The button acts as the click target for the category
+                if st.button(f"{cat_name} ({count})", key=f"cat_btn_{cat_name}", use_container_width=True):
+                    st.session_state.selected_category = cat_name
+                    navigate_to("category_list")
+
+    render_bottom_nav()
+
+# --- CATEGORY LIST (NEW PAGE) ---
+def page_category_list():
+    selected_cat = st.session_state.selected_category
+    render_top_nav(selected_cat.upper())
+    
+    # Back Button
+    if st.button("⬅️ Back to Categories"):
+        navigate_to("categories")
+    
+    st.write("")
+    
+    # Filter recipes
+    cat_recipes = [r for r in st.session_state.recipes if r['category'] == selected_cat]
+
+    if not cat_recipes:
         st.markdown(f"""
-        <div class="category-item">
-            <div style="display:flex; align-items:center; gap:20px; flex-grow:1;">
-                {img_tag}
-                <span style="font-weight:800; color:#FF9B00; font-size:22px; white-space:nowrap;">{cat_name}</span>
+            <div style="text-align: center; margin-top: 30%; color: #FFE100; text-shadow: 1px 1px 10px rgba(0,0,0,0.5); padding: 20px;">
+                <p style="font-weight: 900; font-size: 25px;">No {selected_cat} recipes yet!</p>
             </div>
-            <span style="color:#888; font-weight:600; font-size:18px;">{count}</span>
-        </div>
         """, unsafe_allow_html=True)
+    else:
+        for recipe in cat_recipes:
+            with st.container(border=True):
+                st.markdown(f"""
+                    <div style="font-weight:800; color: white; font-size:22px; line-height:1.2; margin-bottom:5px;">
+                        {recipe['name']}
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.write("") 
+                
+                c_view, c_fav = st.columns([1, 1])
+                with c_view:
+                    if st.button("View", key=f"cat_view_{recipe['id']}", use_container_width=True):
+                        navigate_to("details", recipe['id'])
+                with c_fav:
+                    fav_icon = "❤️" if recipe['fav'] else "🤍"
+                    if st.button(fav_icon, key=f"cat_fav_{recipe['id']}", use_container_width=True):
+                        recipe['fav'] = not recipe['fav']
+                        st.rerun()
 
     render_bottom_nav()
 
@@ -636,9 +676,7 @@ def page_details():
         return
 
     # --- TOP ROW ---
-    # Added vertical_alignment="center" to help with row alignment in supported versions
-    # and reliant on CSS .stButton min-height for perfect alignment
-    c_back, c_edit, c_fav = st.columns([1, 2, 1], vertical_alignment="center")
+    c_back, c_edit, c_fav = st.columns([1, 2, 1])
     
     with c_back:
         if st.button("⬅️"): navigate_to("home")
@@ -809,6 +847,7 @@ def page_details():
 if st.session_state.page == 'welcome': page_welcome()
 elif st.session_state.page == 'home': page_home()
 elif st.session_state.page == 'categories': page_categories()
+elif st.session_state.page == 'category_list': page_category_list() # NEW PAGE
 elif st.session_state.page == 'favorites': page_favorites()
 elif st.session_state.page == 'new_recipe': page_new_recipe()
 elif st.session_state.page == 'details': page_details()
