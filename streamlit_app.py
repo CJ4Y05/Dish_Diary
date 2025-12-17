@@ -564,7 +564,7 @@ def page_categories():
         count = sum(1 for r in st.session_state.recipes if r['category'] == cat_name)
         cat_img_b64 = get_img_as_base64(f"assets/categories/{img_file}")
         
-        img_tag = f'<img src="data:image/png;base64,{cat_img_b64}" style="width:40px; height:40px; margin-top:5px;">' if cat_img_b64 else "<span>❓</span>"
+        img_tag = f'<img src="data:image/png;base64,{cat_img_b64}" style="width:40px; height:40px; margin-top:5px; filter: drop-shadow(1px 3px 3px black);">' if cat_img_b64 else "<span>❓</span>"
 
         # UPDATED: Use st.container(border=True) to create the white card background
         with st.container(border=True):
